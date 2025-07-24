@@ -1,9 +1,10 @@
 const express = require('express');
 const path = require('path');
-const dotenv = require('dotenv');
+const { validateConfig } = require('../config');
 const routes = require('../routes');
 
-dotenv.config();
+// 設定のバリデーション
+validateConfig();
 
 const app = express();
 const PORT = process.env.PORT || 3000;

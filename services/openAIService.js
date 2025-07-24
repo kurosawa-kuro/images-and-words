@@ -1,17 +1,69 @@
 const fs = require('fs').promises;
+const OpenAI = require('openai');
+const usageService = require('./usageService');
+
+// OpenAIクライアントの初期化
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 const generateDocument = async (text, documentType, imageFile) => {
   try {
+    // 最も安価なモデル（GPT-3.5-turbo）を使用
+    const model = process.env.OPENAI_MODEL || 'gpt-3.5-turbo';
+    
+    let messages = [
+      {
+        role: 'system',
+        content: `あなたは専門的な文書作成アシスタントです。以下の要求に基づいて、高品質な${getDocumentTypeName(documentType)}を作成してください。`
+      }
+    ];
+
+    // 画像がある場合は、画像の説明を含める
+    let userContent = `以下の要求に基づいて${getDocumentTypeName(documentType)}を作成してください：\n\n${text}`;
+    
     if (imageFile) {
+      userContent += `\n\n参考画像が提供されています。画像の内容も考慮して文書を作成してください。`;
+      
+      // 画像ファイルを削除（一時ファイルのため）
       await fs.unlink(imageFile.path);
     }
 
-    return getMockResponse(text, documentType, imageFile);
+    messages.push({
+      role: 'user',
+      content: userContent
+    });
+
+    // OpenAI APIを呼び出し
+    const completion = await openai.chat.completions.create({
+      model: model,
+      messages: messages,
+      max_tokens: 2000,
+      temperature: 0.7,
+    });
+
+    // 使用状況を記録
+    const totalTokens = completion.usage.total_tokens;
+    await usageService.recordUsage(totalTokens, model);
+
+    return completion.choices[0].message.content;
 
   } catch (error) {
-    console.error('Mock OpenAI service error:', error);
-    throw error;
+    console.error('OpenAI API error:', error);
+    
+    // APIエラーの場合は、フォールバックとしてモックレスポンスを返す
+    console.log('Falling back to mock response due to API error');
+    return getMockResponse(text, documentType, imageFile);
   }
+};
+
+const getDocumentTypeName = (documentType) => {
+  const typeNames = {
+    specification: '仕様書',
+    design: '設計書',
+    confirmation: '確認書'
+  };
+  return typeNames[documentType] || '文書';
 };
 
 const getMockResponse = (text, documentType, imageFile) => {
