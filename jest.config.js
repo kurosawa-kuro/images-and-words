@@ -1,0 +1,13 @@
+module.exports = {
+  testEnvironment: 'node',
+  testMatch: ['**/__tests__/**/*.js', '**/?(*.)+(spec|test).js'],
+  collectCoverageFrom: [
+    'src/**/*.js',
+    'controllers/**/*.js',
+    'services/**/*.js',
+    'middleware/**/*.js',
+    'routes/**/*.js'
+  ],
+  coverageDirectory: 'coverage',
+  verbose: true
+};
