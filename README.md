@@ -1,5 +1,7 @@
 # images-and-words
 
+Node.js JavaScript Express EJS
+
 OpenAI APIにテキストと画像を送信するNode.jsのサンプルコードです。
 
 ## **基本的な実装**
