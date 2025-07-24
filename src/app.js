@@ -1,7 +1,7 @@
 const express = require('express');
 const path = require('path');
-const { validateConfig } = require('../config');
-const routes = require('../routes');
+const { validateConfig } = require('./config');
+const routes = require('./routes');
 
 // 設定のバリデーション
 validateConfig();

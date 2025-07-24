@@ -1,7 +1,13 @@
 {
-  "totalRequests": 0,
-  "totalTokens": 0,
-  "totalCost": 0,
-  "requestsByDate": {},
+  "totalRequests": 9,
+  "totalTokens": 8023,
+  "totalCost": 0.016046,
+  "requestsByDate": {
+    "2025-07-24": {
+      "requests": 9,
+      "tokens": 8023,
+      "cost": 0.016046
+    }
+  },
   "lastReset": "2025-07-24T17:09:11.556Z"
 }

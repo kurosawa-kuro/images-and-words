@@ -3,7 +3,7 @@ const path = require('path');
 
 class UsageService {
   constructor() {
-    this.usageFile = path.join(__dirname, '../data/usage.json');
+    this.usageFile = path.join(__dirname, '../../data/usage.json');
     this.usage = {
       totalRequests: 0,
       totalTokens: 0,

@@ -4,6 +4,46 @@ Node.js JavaScript Express EJS
 
 OpenAI APIにテキストと画像を送信するNode.jsのサンプルコードです。
 
+## 🏗️ プロジェクト構造（ベストプラクティス準拠）
+
+```
+images-and-words/
+├── src/                          # アプリケーションソースコード
+│   ├── app.js                    # アプリケーションエントリーポイント
+│   ├── controllers/              # リクエストハンドラー
+│   │   ├── index.js             # コントローラーエクスポート
+│   │   ├── documentController.js # ドキュメント生成コントローラー
+│   │   └── usageController.js   # 使用状況コントローラー
+│   ├── services/                 # ビジネスロジック
+│   │   ├── index.js             # サービスエクスポート
+│   │   ├── openAIService.js     # OpenAI API統合
+│   │   ├── usageService.js      # 使用状況管理
+│   │   └── validationService.js # バリデーション
+│   ├── routes/                   # ルート定義
+│   │   └── index.js             # ルート設定
+│   ├── middleware/               # カスタムミドルウェア
+│   │   ├── index.js             # ミドルウェアエクスポート
+│   │   ├── upload.js            # ファイルアップロード
+│   │   └── rateLimit.js         # レート制限
+│   ├── config/                   # 設定ファイル
+│   │   └── index.js             # アプリケーション設定
+│   ├── utils/                    # ユーティリティ関数
+│   │   ├── index.js             # ユーティリティエクスポート
+│   │   ├── logger.js            # ログ機能
+│   │   └── response.js          # レスポンス形式統一
+│   └── types/                    # 型定義（TypeScript風）
+│       ├── index.js             # 型定義エクスポート
+│       └── document.js          # ドキュメント関連型
+├── tests/                        # テストファイル
+│   ├── api.test.js              # API統合テスト
+│   └── services.test.js         # サービス単体テスト
+├── public/                       # 静的ファイル
+├── views/                        # EJSテンプレート
+├── uploads/                      # アップロードファイル
+├── data/                         # データファイル
+└── package.json                  # プロジェクト設定
+```
+
 ## 🚀 セットアップ
 
 ### 1. 環境変数の設定
@@ -47,6 +87,16 @@ npm start
 npm run dev
 ```
 
+## 🧪 テスト実行
+
+```bash
+# 全テスト実行
+npm test
+
+# ウォッチモード
+npm run test:watch
+```
+
 ## 💰 コスト管理
 
 このシステムは最も安価なGPT-3.5-turboモデルを使用しています：
@@ -66,200 +116,67 @@ GET /api/usage
 POST /api/usage/reset
 ```
 
-# 仕様書生成システム - システム設計書
+## 🏛️ アーキテクチャ設計
 
-## 1. システム構成
+### レイヤー構造
+1. **Routes Layer**: URLマッピングとリクエスト振り分け
+2. **Controllers Layer**: リクエスト処理とレスポンス生成
+3. **Services Layer**: ビジネスロジックと外部API統合
+4. **Utils Layer**: 共通ユーティリティとヘルパー関数
 
-### 1.1 アーキテクチャ
-```
-┌─────────────────────────────────────────┐
-│          クライアント (Browser)           │
-│  - HTML/EJS                             │
-│  - Vanilla JavaScript                   │
-│  - CSS                                  │
-└────────────────┬────────────────────────┘
-                 │ HTTP/HTTPS
-┌────────────────┴────────────────────────┐
-│         Express Server                  │
-│  ┌──────────────────────────────────┐  │
-│  │   Routes                         │  │
-│  │   - GET  /                       │  │
-│  │   - POST /api/generate           │  │
-│  └──────────────┬───────────────────┘  │
-│                 │                       │
-│  ┌──────────────┴───────────────────┐  │
-│  │   Controllers                    │  │
-│  │   - documentController           │  │
-│  └──────────────┬───────────────────┘  │
-│                 │                       │
-│  ┌──────────────┴───────────────────┐  │
-│  │   Services                       │  │
-│  │   - openAIService                │  │
-│  │   - validationService            │  │
-│  └──────────────────────────────────┘  │
-└─────────────────────────────────────────┘
-                 │
-                 │ API Call
-┌─────────────────┴───────────────────────┐
-│          OpenAI API                     │
-│          (gpt-3.5-turbo)                │
-└─────────────────────────────────────────┘
-```
+### 設計原則
+- **Separation of Concerns**: 各レイヤーの責任を明確に分離
+- **Dependency Injection**: モジュール間の疎結合を実現
+- **Error Handling**: 統一されたエラーハンドリング
+- **Logging**: 構造化されたログ出力
+- **Testing**: 包括的なテストカバレッジ
 
-### 1.2 技術スタック
-- **バックエンド**: Node.js + Express
-- **テンプレートエンジン**: EJS
-- **バリデーション**: Zod
-- **APIクライアント**: OpenAI Node.js SDK
-- **ファイルアップロード**: Multer
-- **環境変数管理**: dotenv
-
-## 2. API仕様
-
-### 2.1 エンドポイント
-
-#### GET /
-- **説明**: メインページの表示
-- **レスポンス**: HTML (index.ejs)
-
-#### POST /api/generate
-- **説明**: ドキュメント生成
-- **リクエスト**:
-  ```json
-  {
-    "text": "string (required, max 500 chars)",
-    "documentType": "specification | design | confirmation",
-    "image": "file (optional, max 1 file)"
-  }
-  ```
-- **レスポンス**:
-  ```json
-  {
-    "success": true,
-    "document": "生成されたドキュメント内容",
-    "documentType": "specification | design | confirmation"
-  }
-  ```
-
-### 2.2 バリデーションスキーマ (Zod)
-
+### レスポンス形式統一
 ```javascript
-const DocumentGenerationSchema = z.object({
-  text: z.string().min(1).max(500),
-  documentType: z.enum(['specification', 'design', 'confirmation']).default('specification'),
-  image: z.any().optional()
-});
+// 成功レスポンス
+{
+  "success": true,
+  "message": "Operation completed successfully",
+  "data": { ... }
+}
+
+// エラーレスポンス
+{
+  "success": false,
+  "message": "Error description",
+  "error": "Error details"
+}
 ```
 
-## 3. ディレクトリ構造
+## 🔧 開発ガイドライン
 
-```
-project/
-├── package.json
-├── .env
-├── .gitignore
-├── app.js
-├── routes/
-│   └── index.js
-├── controllers/
-│   └── documentController.js
-├── services/
-│   ├── openAIService.js
-│   └── validationService.js
-├── middleware/
-│   └── upload.js
-├── views/
-│   └── index.ejs
-├── public/
-│   ├── css/
-│   │   └── style.css
-│   └── js/
-│       └── main.js
-└── config/
-    └── swagger.js
-```
+### コード規約
+- **命名規則**: camelCase for variables, PascalCase for classes
+- **ファイル構造**: 機能別にディレクトリを分割
+- **インポート順序**: 外部ライブラリ → 内部モジュール
+- **エラーハンドリング**: try-catch文での適切な例外処理
 
-## 4. 画面設計
+### テスト戦略
+- **Unit Tests**: 個別の関数・メソッドのテスト
+- **Integration Tests**: APIエンドポイントの統合テスト
+- **Mock Usage**: 外部依存関係のモック化
 
-### 4.1 レイアウト
-```
-┌─────────────────────────────────────────┐
-│            ヘッダー                      │
-│     「仕様書・設計書生成ツール」          │
-├─────────────────────────────────────────┤
-│                                         │
-│  ┌─────────────────────────────────┐  │
-│  │  テキスト入力エリア               │  │
-│  │  (500文字まで)                   │  │
-│  └─────────────────────────────────┘  │
-│                                         │
-│  ┌─────────────────────────────────┐  │
-│  │  画像アップロードエリア           │  │
-│  │  (ドラッグ&ドロップ対応)         │  │
-│  └─────────────────────────────────┘  │
-│                                         │
-│  文書種類: [仕様書▼] [生成]ボタン      │
-│                                         │
-├─────────────────────────────────────────┤
-│                                         │
-│  ┌─────────────────────────────────┐  │
-│  │  生成結果表示エリア               │  │
-│  │  (Markdown形式で表示)             │  │
-│  └─────────────────────────────────┘  │
-│                                         │
-└─────────────────────────────────────────┘
-```
-
-## 5. データフロー
-
-1. **ユーザー入力**
-   - テキスト入力（必須）
-   - 画像アップロード（任意）
-   - 文書種類選択
-
-2. **クライアント側処理**
-   - 入力値のバリデーション
-   - FormDataオブジェクトの作成
-   - Ajax (Fetch API) によるPOST送信
-
-3. **サーバー側処理**
-   - Multerによる画像受信
-   - Zodによるバリデーション
-   - OpenAI APIへのリクエスト構築
-   - プロンプトエンジニアリング
-
-4. **OpenAI API処理**
-   - gpt-3.5-turboモデルによる生成
-   - 文書種類に応じたプロンプト適用
-
-5. **レスポンス処理**
-   - 生成結果の返却
-   - クライアント側での表示更新
-
-## 6. セキュリティ考慮事項
-
-- **入力サニタイゼーション**: XSS対策
-- **ファイルアップロード制限**: 
-  - 画像形式のみ許可 (jpeg, png, gif)
-  - ファイルサイズ制限 (5MB)
+### セキュリティ考慮事項
+- **入力検証**: Zodスキーマによる厳密なバリデーション
+- **ファイルアップロード**: ファイルタイプとサイズの制限
 - **レート制限**: API呼び出し回数の制限
-- **環境変数**: OpenAI APIキーの安全な管理
+- **環境変数**: 機密情報の安全な管理
 
-## 7. エラーハンドリング
+## 📈 パフォーマンス最適化
 
-- **クライアント側**:
-  - 入力値エラー表示
-  - ネットワークエラー処理
-  - タイムアウト処理
+- **非同期処理**: async/awaitパターンの活用
+- **エラーフォールバック**: API障害時の自動復旧
+- **リソース管理**: ファイルの適切なクリーンアップ
+- **ログ最適化**: 開発環境でのみデバッグログ出力
 
-- **サーバー側**:
-  - バリデーションエラー
-  - OpenAI APIエラー
-  - ファイルアップロードエラー
+## 🔄 今後の拡張予定
 
-## 8. 拡張性の考慮
-
-- **キャッシング**: Redis導入準備
-- **非同期処理**: RabbitMQ導入準備
-- **データベース**: 生成履歴保存用のDB接続準備
-- **APIドキュメント**: Swagger自動生成
+- **データベース統合**: 生成履歴の永続化
+- **キャッシュ機能**: Redisによるレスポンスキャッシュ
+- **認証機能**: JWTによるユーザー認証
+- **API文書**: Swaggerによる自動文書生成

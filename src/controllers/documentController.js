@@ -1,6 +1,6 @@
 const { z } = require('zod');
-const openAIService = require('../services/openAIService');
-const validationService = require('../services/validationService');
+const { openAIService, validationService } = require('../services');
+const { logger, successResponse, errorResponse, validationErrorResponse } = require('../utils');
 
 const generateDocument = async (req, res) => {
   try {
@@ -18,26 +18,18 @@ const generateDocument = async (req, res) => {
       validatedData.image
     );
 
-    res.json({
-      success: true,
+    res.json(successResponse({
       document: generatedDocument,
       documentType: validatedData.documentType
-    });
+    }, 'Document generated successfully'));
 
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({
-        success: false,
-        error: 'Validation error',
-        details: error.errors
-      });
+      return res.status(400).json(validationErrorResponse(error.errors));
     }
 
-    console.error('Document generation error:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to generate document'
-    });
+    logger.error('Document generation error:', error);
+    res.status(500).json(errorResponse(error, 'Failed to generate document'));
   }
 };
 

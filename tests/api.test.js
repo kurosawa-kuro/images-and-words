@@ -4,7 +4,7 @@ const fs = require('fs');
 
 const createApp = () => {
   const express = require('express');
-  const routes = require('../routes');
+  const routes = require('../src/routes');
   
   const app = express();
   
@@ -73,9 +73,9 @@ describe('API Endpoints', () => {
           .expect(200);
 
         expect(response.body.success).toBe(true);
-        expect(response.body.documentType).toBe('specification');
-        expect(response.body.document).toContain('# 仕様書');
-        expect(response.body.document).toContain('ユーザー管理システムの仕様書を作成してください');
+        expect(response.body.data.documentType).toBe('specification');
+        expect(response.body.data.document).toContain('# 仕様書');
+        expect(response.body.data.document).toContain('ユーザー管理システムの仕様書を作成してください');
       });
 
       it('should generate design document with text only', async () => {
@@ -86,9 +86,9 @@ describe('API Endpoints', () => {
           .expect(200);
 
         expect(response.body.success).toBe(true);
-        expect(response.body.documentType).toBe('design');
-        expect(response.body.document).toContain('# 設計書');
-        expect(response.body.document).toContain('Webアプリケーションの設計書を作成してください');
+        expect(response.body.data.documentType).toBe('design');
+        expect(response.body.data.document).toContain('# 設計書');
+        expect(response.body.data.document).toContain('Webアプリケーションの設計書を作成してください');
       });
 
       it('should generate confirmation document with text only', async () => {
@@ -99,9 +99,9 @@ describe('API Endpoints', () => {
           .expect(200);
 
         expect(response.body.success).toBe(true);
-        expect(response.body.documentType).toBe('confirmation');
-        expect(response.body.document).toContain('# 確認書');
-        expect(response.body.document).toContain('システムテストの確認書を作成してください');
+        expect(response.body.data.documentType).toBe('confirmation');
+        expect(response.body.data.document).toContain('# 確認書');
+        expect(response.body.data.document).toContain('システムテストの確認書を作成してください');
       });
 
       it('should default to specification when documentType is not provided', async () => {
@@ -111,8 +111,8 @@ describe('API Endpoints', () => {
           .expect(200);
 
         expect(response.body.success).toBe(true);
-        expect(response.body.documentType).toBe('specification');
-        expect(response.body.document).toContain('# 仕様書');
+        expect(response.body.data.documentType).toBe('specification');
+        expect(response.body.data.document).toContain('# 仕様書');
       });
     });
 
@@ -138,9 +138,9 @@ describe('API Endpoints', () => {
           .expect(200);
 
         expect(response.body.success).toBe(true);
-        expect(response.body.documentType).toBe('specification');
-        expect(response.body.document).toContain('# 仕様書');
-        expect(response.body.document).toContain('## 画像について');
+        expect(response.body.data.documentType).toBe('specification');
+        expect(response.body.data.document).toContain('# 仕様書');
+        expect(response.body.data.document).toContain('## 画像について');
       });
 
       it('should reject non-image files', async () => {
@@ -219,7 +219,7 @@ describe('API Endpoints', () => {
           .expect(200);
 
         expect(response.body.success).toBe(true);
-        expect(response.body.documentType).toBe('specification');
+        expect(response.body.data.documentType).toBe('specification');
       });
     });
   });
